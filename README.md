@@ -10,8 +10,8 @@ while trying to learn various aspects, like the AMPL modeling language.
 The spreadsheets execute the various AMPL examples, but instead, use
 SolverStudio as the integrated development environment (IDE).
 
-AMPL_Ex1_Prod_bands_coils.xlsx         http://ampl.com/BOOK/CHAPTERS/04-tut1.pdf 
-AMPL_Book_Examples.xlsx                http://ampl.com/BOOK/CHAPTERS/05-tut2.pdf 
+AMPL_Ex1_Prod_bands_coils.xlsx         http://ampl.com/BOOK/CHAPTERS/04-tut1.pdf <br />
+AMPL_Book_Examples.xlsx                http://ampl.com/BOOK/CHAPTERS/05-tut2.pdf <br />
 
 SolverStudio allows the use of the AMPL modeling language and comes with these
 examples as part of the installation, but in order to run the AMPL models you have
