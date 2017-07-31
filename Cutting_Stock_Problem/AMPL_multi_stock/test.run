@@ -1,0 +1,28 @@
+#===============================================RESULTS========================
+printf "Len,Cnt,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5d,",j; } printf "\n";
+	
+for {i in ll}
+{	printf "%5.1f,%5d,",i,dd[i];
+	for {j in PATTERNS}	
+	{	if x[j]>0 then
+			printf "%5d,",A[i,j];	
+	}
+	printf "\n";
+};
+printf "Count,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5d,",x[j]; 
+} 
+printf "\n";
+
+printf "StockLen,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5.1f,",K[j]; 
+} 
+printf "\n";
+

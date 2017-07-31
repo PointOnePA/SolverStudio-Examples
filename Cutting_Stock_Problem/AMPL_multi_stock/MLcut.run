@@ -1,0 +1,99 @@
+# Multiple length cutting stock problem, Erwin Kalvelagen Erwin Kalvelagen, https://plus.google.com/+ErwinKalvelagen
+#http://yetanothermathprogrammingconsultant.blogspot.com/2010/07/multiple-length-cutting-stock-problem.html
+
+#AMPL MODEL test1
+reset;
+model MLcut.mod;
+data  MLcut.dat;
+
+#========================== file.run; =========================================
+option solver cplex, solution_round 6;
+option display_1col 0, display_transpose -10;
+
+#========================== MAIN PROBLEM ======================================
+#Problem1 Name: Dec_Var, Obj, Constraint
+problem Cutting_Opt: x, WASTE, Fill;
+option relax_integrality 1;
+
+
+#=========================== SUB PROBLEM ======================================
+#Problem2 Name: Dec_Var, Obj, Constraint
+problem Pattern_Gen: delta,y,LL,UU,MM, Reduced_Cost, OnlyOneStock,XUL,DefineLL, DefineUU;  #DefineU, DefineL,
+option relax_integrality 0;
+
+
+#==============================INITIALIZE PATTERNS for 30 demand lengths
+#==============NOTE: K is unique, corresponding to specific pattern for Stock Length
+#==============NOTE: W is unique, corresponding to specific pattern for Stock Length
+let nPAT := 0;
+for {i in ll} 
+{	let nPAT := nPAT + 1;
+	for{ j in iSTOCK}						# has to be at least one stock>order
+	{	let K[nPAT] := LK[j];				# ASSIGN/RECORD PATTERN STOCK LENGTH
+		if floor(LK[j]/i) >0 then break;	# keep "j"
+	}										# end of for loop
+	let A[i,nPAT] := floor( K[nPAT]/i );			# INITIALIZE PATTERN number nPAT
+	let {i2 in ll: i2 <> i} A[i2,nPAT] := 0;		# Set rest of the pattern to zero
+}	#end of for-loop
+
+
+#==================MAIN LOOP
+let nloop := 0;
+repeat
+{	for {nPat in PATTERNS}
+	{	            #  K is the stock length associated with pattern #nPat (from "L")
+	 	let W[nPat] := K[nPat] - sum{i2 in ll}A[i2,nPat]*i2;
+	}
+	solve Cutting_Opt;
+
+	let {i in  ll} lambda[i] := Fill[i].dual;
+	solve Pattern_Gen;
+
+	let nloop := nloop+1;
+	let data[nloop,1] := nloop;			# variable storage for collected data of 3 points
+	let data[nloop,2] := WASTE;			
+	let data[nloop,3] := Reduced_Cost;		
+		
+	display nloop, WASTE, Reduced_Cost;
+	if Reduced_Cost < 0 and nloop<100 then	#bail if stuck
+	{	let nPAT := nPAT+1;
+		let{i in ll}A[i,nPAT] := y[i];
+		let K[nPAT] := LL;
+	}else break;
+}
+#==================
+
+option Cutting_Opt.relax_integrality 0;
+solve  Cutting_Opt;
+#display a;
+#display x;
+display data;		#convergence information
+
+#=====================================FORMATED RESULTS=========================
+printf "Len,Cnt,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5d,",j; } printf "\n";
+	
+for {i in ll}
+{	printf "%5.1f,%5d,",i,dd[i];
+	for {j in PATTERNS}	
+	{	if x[j]>0 then
+			printf "%5d,",A[i,j];	
+	}
+	printf "\n";
+};
+printf "Count,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5d,",x[j]; 
+} 
+printf "\n";
+
+printf "StockLen,";
+for {j in PATTERNS}
+{ 	if x[j]>0 then
+		printf "%5.1f,",K[j]; 
+} 
+printf "\n";
+
